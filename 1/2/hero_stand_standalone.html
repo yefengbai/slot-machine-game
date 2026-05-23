@@ -819,31 +819,31 @@ function playMusicNote(freq,durMs,type,vol,toDelay){if(!audioCtx||!musicGain)ret
 function playBassNote(freq,durMs,vol){if(!audioCtx||!bassLPF)return;const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.value=freq;g.gain.setValueAtTime(Math.min(vol,0.20),t);g.gain.exponentialRampToValueAtTime(0.0001,t+durMs/1000);o.connect(g);g.connect(bassLPF);o.start(t);o.stop(t+durMs/1000)}
 function playPercHit(heavy){if(!audioCtx||!musicGain||STATE.muted)return;const t=audioCtx.currentTime,dur=heavy?0.14:0.06;const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*dur,audioCtx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const env=1-i/d.length;d[i]=(Math.random()*2-1)*env*env*(heavy?1:0.5)}const s=audioCtx.createBufferSource();s.buffer=buf;const g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=heavy?180:320;f.Q.value=0.6;g.gain.setValueAtTime(heavy?0.10:0.04,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(f);f.connect(g);g.connect(musicGain);s.start(t)}
 function sfxAttack(bt,elem){
-  // 子弹类型音效（6种）
+  // 子弹类型音效 — 清脆短促
   const sfxMap={
-    normal:  {f:880, d:0.05, t:'square',   v:0.12},
-    pierce:  {f:1200,d:0.07, t:'sine',      v:0.10},
-    split:   {f:660, d:0.06, t:'sawtooth',  v:0.10, g:440},
-    homing:  {f:550, d:0.08, t:'triangle',  v:0.10, g:330},
-    bounce:  {f:950, d:0.04, t:'square',    v:0.11, g:1400},
-    orbit:   {f:700, d:0.06, t:'sine',      v:0.09, g:1050},
+    normal:  {f:1200,d:0.035,t:'sine',     v:0.09},
+    pierce:  {f:1600,d:0.045,t:'sine',     v:0.08},
+    split:   {f:900, d:0.045,t:'triangle', v:0.08, g:1350},
+    homing:  {f:700, d:0.06, t:'sine',     v:0.08, g:950},
+    bounce:  {f:1050,d:0.03, t:'sine',     v:0.09, g:1600},
+    orbit:   {f:800, d:0.05, t:'triangle', v:0.07, g:1150},
   };
   const s=sfxMap[bt]||sfxMap.normal;
   playTone(s.f,s.d,s.t,s.v,s.g);
-  // 元素层音效（叠加在子弹音效上）
-  if(elem==='fire')   playTone(200,0.08,'sawtooth',0.06,80);
-  if(elem==='ice')    playTone(1600,0.05,'sine',0.05,2400);
-  if(elem==='lightning')playTone(2200,0.03,'square',0.07);
+  // 元素层音效
+  if(elem==='fire')   playTone(280,0.05,'sine',0.05,140);
+  if(elem==='ice')    playTone(2000,0.04,'sine',0.04,2800);
+  if(elem==='lightning')playTone(2600,0.025,'sine',0.06);
 }
-function sfxHit(){playTone(200,0.08,'sawtooth',0.12,70)}
-function sfxDeath(){playNoise(0.12,0.10);playTone(130,0.15,'sawtooth',0.10,40)}
-function sfxBossDeath(){playNoise(0.25,0.15);playTone(50,0.5,'sawtooth',0.15,25)}
-function sfxLevelUp(){playTone(523,0.08,'square',0.12);setTimeout(()=>playTone(659,0.08,'square',0.12),80);setTimeout(()=>playTone(784,0.15,'square',0.13),160)}
-function sfxBossSpawn(){playTone(50,0.7,'sawtooth',0.18,100)}
-function sfxGold(){playTone(1500,0.04,'square',0.08);setTimeout(()=>playTone(1800,0.04,'square',0.08),50)}
-function sfxHurt(){playTone(120,0.15,'sawtooth',0.14,50)}
+function sfxHit(){playNoise(0.03,0.06);playTone(900,0.05,'sine',0.09,1400)}
+function sfxDeath(){playNoise(0.10,0.08);playTone(200,0.12,'sine',0.08,80)}
+function sfxBossDeath(){playNoise(0.22,0.12);playNoise(0.30,0.18);playTone(55,0.4,'sine',0.12,30)}
+function sfxLevelUp(){playTone(660,0.06,'sine',0.10);setTimeout(()=>playTone(880,0.06,'sine',0.10),70);setTimeout(()=>playTone(1100,0.12,'sine',0.11),140)}
+function sfxBossSpawn(){playTone(40,0.5,'sine',0.15,80)}
+function sfxGold(){playTone(1800,0.03,'sine',0.07);setTimeout(()=>playTone(2200,0.03,'sine',0.07),40)}
+function sfxHurt(){playNoise(0.04,0.06);playTone(250,0.10,'triangle',0.10,120)}
 function sfxWaveStart(){playTone(330,0.12,'triangle',0.10);setTimeout(()=>playTone(440,0.12,'triangle',0.10),120)}
-function sfxDodge(){playTone(400,0.06,'sine',0.10,800);playTone(1200,0.04,'sine',0.06)}function sfxGraze(){playTone(880,0.08,'sine',0.15,1400);playTone(1400,0.12,'sine',0.08);playTone(660,0.15,'triangle',0.06,1100)}
+function sfxDodge(){playTone(600,0.04,'sine',0.09,1100);playTone(1400,0.03,'sine',0.05)}function sfxGraze(){playTone(1000,0.06,'sine',0.12,1600);playTone(1600,0.08,'sine',0.06);playTone(780,0.10,'triangle',0.05,1200)}
 function startMusic(){
   _pmStart(_pmMapKey());
 }
@@ -908,27 +908,6 @@ function resolveObstacles(x,y,radius){
   }
   return{x,y};
 }
-/* 子弹与可破坏物碰撞检测 — 返回被击中的可破坏物或null */
-function projectileHitDestructible(px,py,pr){
-  for(let i=0;i<STATE.destructibles.length;i++){
-    const d=STATE.destructibles[i];
-    const r={x:d.x-d.w/2,y:d.y-d.h/2,w:d.w,h:d.h};
-    if(circleRectCollides(px,py,pr,r.x,r.y,r.w,r.h))return{i,d};
-  }
-  return null;
-}
-
-/* 生成障碍物 — 在地图边缘附近随机生成 */
-function generateObstacles(){STATE.obstacles=[]}
-function isTooCloseToPlayer(ox,oy,ow,oh,minDist){
-  const p=STATE.player;
-  const dcx=Math.max(ox-ow/2,Math.min(p.x,ox+ow/2))-p.x;
-  const dcy=Math.max(oy-oh/2,Math.min(p.y,oy+oh/2))-p.y;
-  return dcx*dcx+dcy*dcy<minDist*minDist;
-}
-/* 生成可破坏物 */
-function generateDestructibles(){STATE.destructibles=[]}
-
 /* 更新可破坏物 — 被子弹击中时受伤 */
 function updateDestructibles(dt){
   const p=STATE.player;
@@ -1073,7 +1052,7 @@ function getRoomCenter(idx){
 // 获取相邻房间（按房间顺序依次解锁：4→1/3/5→0/2/6/8→7）
 const ROOM_UNLOCK_SEQ=[4,1,3,5,0,2,6,8,7];
 const ROOM_ADJ={0:[1,3],1:[0,2,4],2:[1,5],3:[0,4,6],4:[1,3,5,7],5:[2,4,8],6:[3,7],7:[4,6,8],8:[5,7]};
-function getAdjacentRooms(idx){return ROOM_ADJ[idx]||[]}
+
 
 // 主题地图BOSS生成
 function createThemeBoss(x,y,theme){
@@ -1114,8 +1093,8 @@ function advanceToNextMap(){
   spawnFloatText(center.x,center.y-50,'新地图解锁!','#4ecb71');
   triggerShake(8,600);
   // 生成新地图的障碍物
-  generateObstacles();
-  generateDestructibles();
+  STATE.obstacles=[];
+  STATE.destructibles=[];
   // 给玩家奖励
   const p=STATE.player;
   p.hp=Math.min(p.maxHp,p.hp+Math.floor(p.maxHp*0.3));
@@ -1126,37 +1105,6 @@ function advanceToNextMap(){
   }
   STATE.invincibleTimer=1000;
 }
-// 初始化本波房间：清空旧敌人，生成障碍和可破坏物
-function initRoom(){
-  const rs=STATE.roomState;
-  if(!rs){return}
-  // 先把玩家移到新房间位置（先生成障碍物时isTooCloseToPlayer会用对的位置）
-  const center=getRoomCenter(rs.currentRoom);
-  STATE.player.x=center.x;
-  STATE.player.y=center.y;
-  // 重置本房间的敌人生成
-  STATE.enemies=[];
-  STATE.projectiles=[];
-  STATE.enemyProjectiles=[];
-  STATE.drops=[];
-  // 生成障碍物和可破坏物（仅field地图）
-  if(STATE.currentMap==='field'){
-    generateObstacles();
-    generateDestructibles();
-  }else{
-    STATE.obstacles=[];
-    STATE.destructibles=[];
-  }
-  // 房间提示
-  const roomNames={0:'左上角',1:'上方',2:'右上角',3:'左侧',4:'中央大厅',5:'右侧',6:'左下角',7:'BOSS房',8:'右下角'};
-  rs.roomTextTimer=2000;
-  spawnFloatText(center.x,center.y-60,'📍 '+roomNames[rs.currentRoom],'#ffd700');
-  if(rs.currentRoom===7){
-    const theme=getCurrentTheme();
-    spawnFloatText(center.x,center.y-40,'⚔ '+theme.bossName+' ⚔','#ff4444');
-  }
-}
-
 // 更新房间系统：当前房间清空后，自动解锁并进入下一个房间
 function updateRooms(dt){
   const rs=STATE.roomState;
@@ -1203,8 +1151,8 @@ function updateRooms(dt){
     }
     // 生成障碍物和可破坏物
     if(STATE.currentMap==='field'){
-      generateObstacles();
-      generateDestructibles();
+      STATE.obstacles=[];
+      STATE.destructibles=[];
     }
     // 房间提示
     const roomNames={0:'左上角',1:'上方',2:'右上角',3:'左侧',4:'中央大厅',5:'右侧',6:'左下角',7:'BOSS房',8:'右下角'};
@@ -1214,49 +1162,10 @@ function updateRooms(dt){
   }
 }
 
-// 绘制房间墙壁和门（墙壁已禁用）
-function drawRooms(){}
-function drawRoomWall(x,y,w,h,isLocked,showDoor=true){
-  const D=CONFIG.ROOM.DOOR,theme=getCurrentTheme();
-  ctx.fillStyle=isLocked?theme.wallLocked:theme.wallColor;
-  ctx.fillRect(x,y,w,h);
-  if(!showDoor)return;
-  if(isLocked){
-    ctx.fillStyle='rgba(255,40,40,0.35)';
-    ctx.fillRect(x,y,w,h);
-    if(w>h){
-      const doorX=x+(w-D)/2;
-      ctx.fillStyle='#ff4444';ctx.fillRect(doorX,y,D,h);
-      ctx.fillStyle='#991111';ctx.fillRect(doorX+5,y+5,D-10,h-10);
-    }else{
-      const doorY=y+(h-D)/2;
-      ctx.fillStyle='#ff4444';ctx.fillRect(x,doorY,w,D);
-      ctx.fillStyle='#991111';ctx.fillRect(x+5,doorY+5,w-10,D-10);
-    }
-  }else{
-    // 已解锁：发光的门
-    const glow=0.4+0.2*Math.sin(performance.now()/600);
-    if(w>h){
-      const doorX=x+(w-D)/2;
-      ctx.fillStyle=`rgba(${hexToRgb(theme.doorColor)},${glow})`;
-      ctx.fillRect(doorX,y,D,h);
-      ctx.strokeStyle=theme.doorColor;ctx.lineWidth=2;
-      ctx.strokeRect(doorX+2,y+2,D-4,h-4);
-    }else{
-      const doorY=y+(h-D)/2;
-      ctx.fillStyle=`rgba(${hexToRgb(theme.doorColor)},${glow})`;
-      ctx.fillRect(x,doorY,w,D);
-      ctx.strokeStyle=theme.doorColor;ctx.lineWidth=2;
-      ctx.strokeRect(x+2,doorY+2,w-4,D-4);
-    }
-  }
-}
-
-// 敌人（BOSS/普通敌人）与房间墙壁碰撞检测
-function resolveRoomWallsForEnemy(px,py,pr){return{x:px,y:py}}
-
 // 玩家与房间墙壁碰撞检测
 function resolveRoomWalls(px,py,pr){return{x:px,y:py}}
+// 敌人与房间墙壁碰撞检测 (已被禁用)
+function resolveRoomWallsForEnemy(px,py,pr){return{x:px,y:py}}
 
 /* ============================================================
    输入
@@ -1385,7 +1294,7 @@ function initWave(n){
       STATE.enemyProjectiles=[];
       STATE.drops=[];
       // 生成障碍物和可破坏物（BOSS房跳过）
-      if(nextRoom!==7){generateObstacles();generateDestructibles();}
+      if(nextRoom!==7){STATE.obstacles=[];STATE.destructibles=[];}
       // BOSS房间
       if(nextRoom===7){
         const theme=getCurrentTheme();
@@ -1461,8 +1370,8 @@ function initWave(n){
       STATE.player.x=center.x;
       STATE.player.y=center.y;
       STATE.enemies=[];STATE.projectiles=[];STATE.enemyProjectiles=[];STATE.drops=[];
-      generateObstacles();
-      generateDestructibles();
+      STATE.obstacles=[];
+      STATE.destructibles=[];
       rs.roomTextTimer=2000;
       const roomNames={0:'左上角',1:'上方',2:'右上角',3:'左侧',4:'中央大厅',5:'右侧',6:'左下角',7:'下方',8:'右下角'};
       spawnFloatText(center.x,center.y-60,'📍 '+roomNames[rs.currentRoom],'#ffd700');
@@ -1529,6 +1438,13 @@ function narratorTrick(dt){
 }
 function updateSpawning(dt){
   const w=STATE.wave;
+  // 换波过渡淡入淡出
+  STATE._transFade=STATE._transFade||0;
+  if(w.transitioning){
+    STATE._transFade=Math.min(1,STATE._transFade+dt/300);
+  }else{
+    STATE._transFade=Math.max(0,STATE._transFade-dt/400);
+  }
   // 前5波加速
   const effSpawnInt=w.number<=5?200:w.spawnInterval;
   const effWaveDelay=w.number<=5?800:w.waveDelay;
@@ -1553,20 +1469,6 @@ function updateSpawning(dt){
   if(w.spawned<w.spawnQueue.length){w.spawnTimer+=dt;while(w.spawnTimer>=effSpawnInt&&w.spawned<w.spawnQueue.length){w.spawnTimer-=effSpawnInt;const type=w.spawnQueue[w.spawned];if(type==='boss'){const boss=createBoss();STATE.enemies.push(boss);w.bossActive=true;if(boss.isWave10Boss){STATE.boss10Active=true;setMusicSpeed(1.4);STATE.speedOrbs=[];STATE.speedBoost=0;STATE.speedOrbTimer=0;STATE.speedOrbHint=3000;STATE.boss10Revive=true;spawnFloatText(boss.x,boss.y-50,'BOSS跑得很快! 地图上有加速球别被追上!','#44ccff')}if(boss.isWave15Boss&&!STATE.fireBuff){spawnFloatText(STATE.player.x,STATE.player.y-50,'前往下方通道追寻火种!','#ff8800');STATE.fireSeed={x:CONFIG.WORLD_W/2+rand(-200,200),y:CONFIG.WORLD_H-100,speed:380,radius:28,life:999999,attackTimer:0,attackCd:1800,dashTimer:0,dashCd:3500,trailTimer:0,chaseTime:0,cloneTimer:0,cloneCd:7000,ringTimer:0,ringCd:5000}}triggerShake(w.number===CONFIG.TOTAL_WAVES?22:14,w.number===CONFIG.TOTAL_WAVES?1000:600);STATE.bossFlash=w.number===CONFIG.TOTAL_WAVES?700:400;if(w.number===CONFIG.TOTAL_WAVES)spawnFloatText(boss.x,boss.y-30,'魔王降临!','#ff0000');sfxBossSpawn()}else if(type==='elite'){STATE.enemies.push(createEnemy(pickEnemyType(),edgePos(),true))}else STATE.enemies.push(createEnemy(type,edgePos()));w.spawned++}}
 }
 
-/* ============================================================
-   子弹进化 + 元素 + 冲刺 辅助函数
-   ============================================================ */
-function resolveBulletType(p){
-  const priorities=['orbit','bounce','homing','split','pierce','normal'];
-  for(const t of priorities){
-    if(t==='orbit'&&p.orbitCount>0)return t;
-    if(t==='bounce'&&p.bounceCount>0)return t;
-    if(t==='homing'&&p.homingPower>0)return t;
-    if(t==='split'&&p.splitCount>0)return t;
-    if(t==='pierce'&&p.pierceCount>0)return t;
-  }
-  return 'normal';
-}
 function getUnlockedBulletTypes(p){
   const types=[];
   if(p.pierceCount>0)types.push('pierce');
@@ -1604,13 +1506,6 @@ function createMiniBoss(){
     bomber:false,explosionRadius:0,flying:false,invisible:false,originalSpeed:0,
     shootCd:2800,shootRange:340,isMiniBoss:true
   };
-}
-function checkSynergy(){
-  const p=STATE.player;
-  if(p.fireLevel>=3)p._fireSynergy=true;
-  if(p.iceLevel>=3)p._iceSynergy=true;
-  if(p.lightningLevel>=3)p._lightningSynergy=true;
-  if(p.fireLevel>=2&&p.iceLevel>=2)p.executeBonus=Math.min(40,p.executeBonus+5);
 }
 function triggerDash(){
   const p=STATE.player;
@@ -1683,9 +1578,8 @@ function updateProjectiles(dt){
     if(pj.x<-40||pj.x>WW+40||pj.y<-40||pj.y>WH+40||pj.life<=0)STATE.projectiles.splice(i,1)}
   // 敌人弹幕
   for(let i=STATE.enemyProjectiles.length-1;i>=0;i--){const ep=STATE.enemyProjectiles[i];
-    if(ep.homing>0){const pa=Math.atan2(STATE.player.y-ep.y,STATE.player.x-ep.x),ca=Math.atan2(ep.vy,ep.vx);let da=pa-ca;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;const na=ca+da*ep.homing*ds;const ss=Math.hypot(ep.vx,ep.vy);ep.vx=Math.cos(na)*ss;ep.vy=Math.sin(na)*ss}
-    if(ep.isShockwave){ep.radius=Math.min(ep.maxRadius||50,ep.radius+(ep.maxRadius||50)*ds*1.2)}
-    ep.x+=ep.vx*ds;ep.y+=ep.vy*ds;ep.life-=dt;
+    if(ep._lavaDelay>0){ep._lavaDelay-=dt;if(ep._lavaDelay<=0){ep.isShockwave=true;ep.radius=ep.baseRadius||8;ep.maxRadius=ep.maxRadius||80}ep.life-=dt}
+    else{if(ep.homing>0){const pa=Math.atan2(STATE.player.y-ep.y,STATE.player.x-ep.x),ca=Math.atan2(ep.vy,ep.vx);let da=pa-ca;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;const na=ca+da*ep.homing*ds;const ss=Math.hypot(ep.vx,ep.vy);ep.vx=Math.cos(na)*ss;ep.vy=Math.sin(na)*ss}if(ep.isShockwave){ep.radius=Math.min(ep.maxRadius||50,ep.radius+(ep.maxRadius||50)*ds*1.2)}ep.x+=ep.vx*ds;ep.y+=ep.vy*ds;ep.life-=dt}
     let _hitObs2=false;for(const _ob2 of STATE.obstacles){if(circleRectCollides(ep.x,ep.y,ep.radius||4,_ob2.x-_ob2.w/2,_ob2.y-_ob2.h/2,_ob2.w,_ob2.h)){_hitObs2=true;spawnHitSpark(ep.x,ep.y);break}}if(_hitObs2){STATE.enemyProjectiles.splice(i,1);continue}
     if(ep.x<-40||ep.x>WW+40||ep.y<-40||ep.y>WH+40||ep.life<=0)STATE.enemyProjectiles.splice(i,1)}
 }
@@ -1742,6 +1636,7 @@ function updateCombat(dt){
       if(p.damageReduction>0)dmg=Math.floor(dmg*(1-p.damageReduction/100));
       if(p.shield>0){const abs=Math.min(p.shield,dmg);p.shield-=abs;dmg-=abs;p.shieldRegenTimer=5000}
       if(dmg>0){p.hp-=dmg;STATE.invincibleTimer=p.invincibleMs;spawnFloatText(p.x,p.y-p.radius,String(Math.floor(dmg)),'#f85149');triggerShake(3,120);sfxHurt()}if(ep.healOnHit>0){const src2=STATE.enemies.find(en=>en.id===ep.sourceId);if(src2&&src2.type==='boss'){src2.hp=Math.min(src2.maxHp,src2.hp+ep.healOnHit);spawnFloatText(src2.x,src2.y-30,'+'+Math.floor(ep.healOnHit),'#aa44ff')}}
+      if(ep._snareSlow){p._slowTimer=(p._slowTimer||0)+300;if(p._slowTimer>400)p._slowTimer=400}
       if(p.reflect>0){const ref=Math.floor(ep.damage*(STATE._ironWallEnd>0?200:p.reflect)/100);const src=STATE.enemies.find(e=>e.id===ep.sourceId);if(src)dealDamage(src,ref)}
       STATE.enemyProjectiles.splice(i,1);
       if(p.hp<=0){if(STATE.boss10Revive){STATE.boss10Revive=false;p.hp=p.maxHp;p.shield=p.maxShield;STATE.invincibleTimer=2000;STATE.boss10ReviveText=3000;spawnFloatText(p.x,p.y-50,'自动复活!','#ffd700');spawnParticles(p.x,p.y,'#ffd700',20)}else{p.hp=0;gameOver();return}}
@@ -1933,11 +1828,6 @@ function buildWeightedPool(pc){
   }
   return pool;
 }
-function pickFromPool(pool,count){
-  const choices=[];
-  for(let i=0;i<count&&pool.length>0;i++){const idx=randInt(0,pool.length-1);choices.push(pool[idx]);pool.splice(idx,1)}
-  return choices;
-}
 function applyUpgrade(uid){
   const p=STATE.player,def=CONFIG.UPGRADE_POOL.find(u=>u.id===uid);
   if(!def)return;
@@ -1975,9 +1865,16 @@ function autoApplyUpgrade(){
   const pool=buildWeightedPool(STATE.playerClass);
   if(pool.length===0)return;
   const choice=pool[randInt(0,pool.length-1)];
+  const def=CONFIG.UPGRADE_POOL.find(u=>u.id===choice.id);
+  const val=choice.id==='atkSpd'?randInt(def.min,def.max):parseFloat(rand(def.min,def.max).toFixed(1));
   applyUpgrade(choice.id);
   sfxLevelUp();
   spawnParticles(STATE.player.x,STATE.player.y,'#ffd700',20);
+  // 显示升级获得的技能提示
+  const isOneShot=def.min===1&&def.max===1&&!['atk','maxHp','atkSpd','speed'].includes(def.id);
+  const valText=isOneShot?'已解锁':(def.unit==='ms'?'-'+val+def.unit:'+'+val+def.unit);
+  spawnFloatText(STATE.player.x,STATE.player.y-30,def.icon+' '+def.name,isOneShot?'#ffd700':'#ffd700');
+  spawnFloatText(STATE.player.x,STATE.player.y-55,valText,'#ffffff');
 }
 
 /* ============================================================
@@ -2001,7 +1898,7 @@ function render(){
   ctx.scale(scX,scY);
   ctx.translate(-cam.x+sx/scX,-cam.y+sy/scY);
   if(STATE.currentMap==='maze')drawMazeBg(cam);else if(STATE.currentMap==='fireField')drawFireMapBg(cam);else if(CONFIG.MAP_DEFS[STATE.currentMap])drawThemedMapBg(cam);else drawBackground(cam);
-  if(!CONFIG.MAP_DEFS[STATE.currentMap]&&STATE.currentMap!=='dungeon')drawRooms();drawDrops();drawSpeedOrbs();drawObstacles();drawDestructibles();drawEnemies();drawProjectiles();drawEnemyProjectiles();drawPlayer();drawParticles();drawFloatTexts();drawHammerDrag();drawNarratorStuff();
+  drawDrops();drawSpeedOrbs();drawObstacles();drawDestructibles();drawEnemies();drawProjectiles();drawEnemyProjectiles();drawPlayer();drawParticles();drawFloatTexts();drawHammerDrag();drawNarratorStuff();
   const wh=getMapWH(),WW=wh.W,WH=wh.H;
   ctx.strokeStyle='rgba(255,50,50,0.5)';ctx.lineWidth=4;ctx.strokeRect(0,0,WW,WH);
   // 传送门
@@ -2031,7 +1928,7 @@ function render(){
     ctx.fillText(st.text,CW/2,CH*0.25);
     ctx.shadowBlur=0;
   }
-  if(STATE.wave.transitioning&&STATE.currentMap!=='fireField'){const isFinal=STATE.wave.number===CONFIG.TOTAL_WAVES;ctx.fillStyle=isFinal?'#ff4444':'#fff';ctx.font='bold 30px "Press Start 2P","Courier New",monospace';ctx.textAlign='center';ctx.globalAlpha=0.9;ctx.fillText((isFinal?'FINAL ':'')+'WAVE '+STATE.wave.number,CW/2,CH/2);if(isFinal){ctx.fillStyle='#ffaa00';ctx.font='bold 14px "Press Start 2P","Courier New",monospace';ctx.fillText('魔王BOSS战!',CW/2,CH/2+35)}ctx.globalAlpha=1}
+  if((STATE.wave.transitioning||STATE._transFade>0.01)&&STATE.currentMap!=='fireField'){const fadeAlpha=STATE._transFade||0;const isFinal=STATE.wave.number===CONFIG.TOTAL_WAVES;const textAlpha=Math.min(1,fadeAlpha*2);ctx.fillStyle=`rgba(0,0,0,${fadeAlpha*0.6})`;ctx.fillRect(0,0,CW,CH);ctx.globalAlpha=textAlpha;ctx.fillStyle=isFinal?'#ff4444':'#fff';ctx.font='bold 30px "Press Start 2P","Courier New",monospace';ctx.textAlign='center';ctx.fillText((isFinal?'FINAL ':'')+'WAVE '+STATE.wave.number,CW/2,CH/2);if(isFinal){ctx.fillStyle='#ffaa00';ctx.font='bold 14px "Press Start 2P","Courier New",monospace';ctx.fillText('魔王BOSS战!',CW/2,CH/2+35)}ctx.globalAlpha=1}
   // BOSS血条(金色)
   const boss=STATE.enemies.find(e=>e.type==='boss');
   if(boss){const bw=400,bh=18,bx=(CW-bw)/2,by=10;ctx.fillStyle='#111';ctx.fillRect(bx-2,by-2,bw+4,bh+4);ctx.fillStyle='#2a1a00';ctx.fillRect(bx,by,bw,bh);const hpPct=boss.hp/boss.maxHp;const grad=ctx.createLinearGradient(bx,0,bx+bw*hpPct,0);grad.addColorStop(0,'#ffd700');grad.addColorStop(1,'#ff8c00');ctx.fillStyle=grad;ctx.fillRect(bx,by,bw*hpPct,bh);ctx.strokeStyle='#aa8800';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle='#000';ctx.font='bold 11px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText('BOSS  '+Math.ceil(boss.hp)+' / '+boss.maxHp,CW/2,by+bh-3);if(boss.isWave15Boss&&!STATE.fireBuff){ctx.fillStyle='#ff8800';ctx.font='bold 9px "Press Start 2P",monospace';ctx.textAlign='center';ctx.fillText('需要火种方可造成伤害!',CW/2,by+bh+16)}}
@@ -3164,6 +3061,11 @@ function gameLoop(ts){
 
 function update(dt){
   const p=STATE.player,ds=dt/1000;if(STATE._portalGraceTimer>0)STATE._portalGraceTimer=Math.max(0,STATE._portalGraceTimer-dt);
+  // BOSS在场(非最终关)：全场敌人攻击欲望+50%
+  STATE._bossAggroMul=1.0;
+  for(const _be of STATE.enemies){
+    if(_be.type==='boss'&&!_be.isFinalBoss){STATE._bossAggroMul=1.5;break}
+  }
   if(STATE._slotFreeze){if(STATE._slotMachine){const sm=STATE._slotMachine;sm.timer+=dt;const icons=CONFIG.UPGRADE_POOL.map(u=>u.icon);for(let i=0;i<3;i++){if(sm.timer<sm.reelStops[i]){sm.reels[i]=Math.floor((sm.timer/80+i*7)%icons.length)}else{sm.reels[i]=icons.indexOf(sm.finalReels[i])}}if(sm.timer>=sm.duration){if(sm.win){const def=CONFIG.UPGRADE_POOL.find(u=>u.id===sm.skillId);if(def){const val=def.id==='atkSpd'?randInt(def.min,def.max):parseFloat(rand(def.min,def.max).toFixed(1));switch(def.id){case'atk':p.atk+=Math.floor(val);break;case'maxHp':{const b=Math.floor(val);p.maxHp+=b;p.hp=Math.min(p.hp+b,p.maxHp);break}case'speed':p.speed=parseFloat((p.speed+val).toFixed(1));break;case'atkSpd':p.atkSpd=Math.max(120,p.atkSpd-val);break;case'hpRegen':p.hpRegen=parseFloat((p.hpRegen+val).toFixed(1));break;case'armorPen':p.armorPen+=Math.floor(val);break;case'comboChance':p.comboChance=Math.min(60,p.comboChance+Math.floor(val));break;case'poison':p.poisonDmg+=parseFloat(val.toFixed(1));break;case'execute':p.executeBonus+=Math.floor(val);break;case'lifesteal':p.lifesteal=Math.min(40,p.lifesteal+Math.floor(val));break;case'reflect':p.reflect=Math.min(45,p.reflect+Math.floor(val));break;case'dmgReduction':p.damageReduction=Math.min(50,p.damageReduction+Math.floor(val));break;case'shield':p.maxShield+=Math.floor(val);p.shield=p.maxShield;break;case'xpBonus':p.xpBonus+=Math.floor(val);break;case'goldBonus':p.goldBonus+=Math.floor(val);break;case'pickupRange':p.pickupRange+=Math.floor(val);break;case'critChance':p.critChance=Math.min(75,p.critChance+Math.floor(val));break}}spawnFloatText(p.x,p.y-50,'中奖! '+def.name,'#ffd700');spawnParticles(p.x,p.y,'#ffd700',15)}else{const loseDmg=Math.floor(p.maxHp*0.10);if(p.shield>0){if(p.shield>=loseDmg){p.shield-=loseDmg}else{p.hp-=loseDmg-p.shield;p.shield=0}}else{p.hp-=loseDmg}p.hp=Math.max(1,p.hp);triggerShake(8,300);spawnParticles(p.x,p.y,'#ff4444',12);spawnFloatText(p.x,p.y-40,'未中奖! -'+loseDmg+'HP','#ff4444')}STATE._slotMachine=null;STATE._slotFreeze=false}}return;}
   // 主动技能冷却
   if(STATE.skillActive>0){
@@ -3199,7 +3101,7 @@ function update(dt){
     if(STATE._dashTimer<=0){STATE._dashing=false;STATE._dashTrail=[]}
   }
   const{dx,dy}=getInputDir();
-  if(!STATE._dashing){const spdMul=(STATE.speedBoost>0?1.6:1)*(STATE._magnetEnd>0?2:1);p.x+=dx*p.speed*spdMul*ds;p.y+=dy*p.speed*spdMul*ds;}
+  if(!STATE._dashing){const slowMul=Math.max(0.3,1-(p._slowTimer||0)/400);if(p._slowTimer>0){p._slowTimer-=dt;if(p._slowTimer<0)p._slowTimer=0}const spdMul=(STATE.speedBoost>0?1.6:1)*(STATE._magnetEnd>0?2:1)*slowMul;p.x+=dx*p.speed*spdMul*ds;p.y+=dy*p.speed*spdMul*ds;}
 
   if(STATE.currentMap==='maze'&&STATE.maze){const cl=clampMazePos(p.x,p.y,p.radius,STATE.maze);p.x=cl.x;p.y=cl.y}else{const wh=getMapWH();p.x=clamp(p.x,p.radius,wh.W-p.radius);p.y=clamp(p.y,p.radius,wh.H-p.radius)}
   // 障碍碰撞 (非迷宫地图)
@@ -3307,7 +3209,7 @@ function update(dt){
         e.x+=sx;e.y+=sy;
       }
       // 射击逻辑（原有强化）
-      e.shootTimer-=dt;e.burstCount=e.burstCount||0;e.burstTimer=(e.burstTimer||0)-dt;
+      e.shootTimer-=dt*STATE._bossAggroMul;e.burstCount=e.burstCount||0;e.burstTimer=(e.burstTimer||0)-dt;
       if(e.burstCount>0&&e.burstTimer<=0){
         e.burstCount--;e.burstTimer=150;
         const a=Math.atan2(leadY-e.y,leadX-e.x);
@@ -3375,7 +3277,7 @@ function update(dt){
       const baseIdealDist=200+rand(-30,30);
       const idealDist=hasNearbyRanged?baseIdealDist:baseIdealDist-30;
       // 射击AI
-      e.shootTimer-=dt;e.burstCount=e.burstCount||0;e.burstTimer=(e.burstTimer||0)-dt;
+      e.shootTimer-=dt*STATE._bossAggroMul;e.burstCount=e.burstCount||0;e.burstTimer=(e.burstTimer||0)-dt;
       if(e.burstCount>0&&e.burstTimer<=0){
         e.burstCount--;e.burstTimer=120;
         const a=Math.atan2(leadY-e.y,leadX-e.x);
@@ -3399,8 +3301,10 @@ function update(dt){
       if(e.strafeTimer<=0){e.strafeDir*=-1;e.strafeTimer=600+rand(-200,200)}
       const sx=-dy*e.speed*0.3*e.strafeDir*ds,sy=dx*e.speed*0.3*e.strafeDir*ds;e.x+=sx;e.y+=sy;
     }else if(e.type==='boss'){
+      // 地图BOSS专属AI
+      if(e.isMapBoss&&e.mapType){updateMapBossAI(e,dt,p,leadX,leadY,d,dx,dy,ds);continue}
       // BOSS智能: 多种攻击模式循环
-      e.shootTimer-=dt;e.specialTimer=(e.specialTimer||0)-dt;
+      e.shootTimer-=dt*STATE._bossAggroMul;e.specialTimer=(e.specialTimer||0)-dt;
       // 地图BOSS第二阶段: HP<50% → 强化
       if(e.isMapBoss&&e.mapBossPhase===0&&e.hp/e.maxHp<0.5){
         e.mapBossPhase=1;
@@ -3853,7 +3757,7 @@ function update(dt){
 
     // 精英怪智能: 三连发散弹 + 预判 + 横移
     if(e.isElite){
-      e.shootTimer-=dt;
+      e.shootTimer-=dt*STATE._bossAggroMul;
       // 轻微横移(绕圈)
       if(!e.strafeDir)e.strafeDir=Math.random()<0.5?-1:1;
       e.strafeTimer=(e.strafeTimer||0)-dt;
@@ -4392,6 +4296,330 @@ function initBoss15Sprite(){
   img.onerror=()=>{STATE.boss15SpriteReady=true};
   img.src=BOSS15_SPRITE;
 }
+// ===== 地图BOSS专属AI系统 =====
+function updateMapBossAI(e,dt,p,leadX,leadY,d,dx,dy,ds){
+  switch(e.mapType){
+    case'ice':updateIceLord(e,dt,p,leadX,leadY,d,dx,dy,ds);break;
+    case'lava':updateLavaBeast(e,dt,p,leadX,leadY,d,dx,dy,ds);break;
+    case'forest':updateForestGuardian(e,dt,p,leadX,leadY,d,dx,dy,ds);break;
+    case'crypt':updateCryptLord(e,dt,p,leadX,leadY,d,dx,dy,ds);break;
+    default:break;
+  }
+}
+
+// ===== 冰霜领主AI — 冰晶风暴·护盾·减速光环 =====
+function updateIceLord(e,dt,p,leadX,leadY,d,dx,dy,ds){
+  const enrage=e.mapBossPhase>=1;
+  // 初始化技能冷却
+  if(e.skill1Cd===undefined){e.skill1Cd=0;e.skill2Cd=0;e.skill3Cd=0;e._iceData={}}
+  e.skill1Cd-=dt;e.skill2Cd-=dt;e.skill3Cd-=dt;
+
+  // 移动：中距离游走，保持350-500距离
+  const idealDist=enrage?300:420;
+  if(d>idealDist+80){e.x+=dx*e.speed*0.7*ds;e.y+=dy*e.speed*0.7*ds}
+  else if(d<idealDist-80){e.x-=dx*e.speed*0.6*ds;e.y-=dy*e.speed*0.6*ds}
+  // 横向漂移
+  e.strafeDir=e.strafeDir||(Math.random()<0.5?-1:1);e.strafeTimer=(e.strafeTimer||0)-dt;
+  if(e.strafeTimer<=0){e.strafeDir*=-1;e.strafeTimer=900+rand(-300,300)}
+  const sx=-dy*e.speed*0.25*e.strafeDir*ds,sy=dx*e.speed*0.25*e.strafeDir*ds;e.x+=sx;e.y+=sy;
+
+  // 技能1: 冰锥风暴 (冷却4.5s / 3s)
+  if(e.skill1Cd<=0){
+    e.skill1Cd=enrage?3000:4500;
+    const count=enrage?14:9;
+    const ba=Math.atan2(p.y-e.y,p.x-e.x);
+    for(let i=0;i<count;i++){
+      const a=ba+(i-(count-1)/2)*0.18;
+      STATE.enemyProjectiles.push({
+        x:e.x+Math.cos(a)*25,y:e.y+Math.sin(a)*25,
+        vx:Math.cos(a)*CONFIG.ENEMY_PROJECTILE.speed*0.9,
+        vy:Math.sin(a)*CONFIG.ENEMY_PROJECTILE.speed*0.9,
+        damage:Math.floor(e.atk*0.7),radius:CONFIG.ENEMY_PROJECTILE.radius+3,
+        life:2800,sourceId:e.id,color:'#66ccff'
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'❄️ 冰锥风暴','#88ccff');
+  }
+
+  // 技能2: 冰晶护盾 (冷却10s / 7s) — 获得临时护盾吸收伤害
+  if(e.skill2Cd<=0&&e.hp/e.maxHp<0.75){
+    e.skill2Cd=enrage?7000:10000;
+    const shieldAmt=Math.floor(e.maxHp*(enrage?0.18:0.12));
+    e.shield=(e.shield||0)+shieldAmt;e.maxShield=e.shield;
+    e._shieldTimer=5000;
+    spawnFloatText(e.x,e.y-55,'🛡 冰晶护盾 +'+shieldAmt,'#aaddff');
+  }
+
+  // 技能3: 冰冻光环 (冷却12s / 8s) — 减速附近玩家
+  if(e.skill3Cd<=0&&d<550){
+    e.skill3Cd=enrage?8000:12000;
+    e._freezeAuraTimer=3000;
+    spawnFloatText(e.x,e.y-55,'🧊 冰冻光环!','#ccddff');
+  }
+
+  // 处理护盾计时
+  if(e._shieldTimer>0){
+    e._shieldTimer-=dt;
+    if(e._shieldTimer<=0){e.shield=0;e.maxShield=0}
+  }
+  // 处理冰冻光环 — 减速玩家
+  if(e._freezeAuraTimer>0){
+    e._freezeAuraTimer-=dt;
+    if(d<300&&e._freezeAuraTimer>0){
+      p._slowTimer=(p._slowTimer||0)+dt;
+      if(p._slowTimer>200){p._slowTimer=200}
+    }
+  }
+  // 冰冻光环粒子
+  if(e._freezeAuraTimer>0&&Math.random()<0.3){
+    const pa=rand(0,Math.PI*2),pr=rand(30,280);
+    spawnParticles(e.x+Math.cos(pa)*pr,e.y+Math.sin(pa)*pr,'#aaddff',1);
+  }
+}
+
+// ===== 熔岩巨兽AI — 熔岩爆发·追踪火球·陨石雨 =====
+function updateLavaBeast(e,dt,p,leadX,leadY,d,dx,dy,ds){
+  const enrage=e.mapBossPhase>=1;
+  if(e.skill1Cd===undefined){e.skill1Cd=0;e.skill2Cd=0;e.skill3Cd=0;e._lavaData={}}
+  e.skill1Cd-=dt;e.skill2Cd-=dt;e.skill3Cd-=dt;
+
+  // 移动：激进接近，喜欢200-350距离
+  const idealDist=enrage?180:280;
+  if(d>idealDist+60){e.x+=dx*e.speed*0.9*ds;e.y+=dy*e.speed*0.9*ds}
+  else if(d<idealDist-60){e.x-=dx*e.speed*0.5*ds;e.y-=dy*e.speed*0.5*ds}
+  // 偶尔冲刺
+  e._lavaChargeTimer=(e._lavaChargeTimer||0)-dt;
+  if(e._lavaChargeTimer<=0&&d>300&&Math.random()<0.008){
+    e._lavaChargeTimer=4000+rand(-1000,1000);
+    e._lavaCharging=true;e._lavaChargeDur=600;
+    e._lavaChargeVx=dx*e.speed*2.5;e._lavaChargeVy=dy*e.speed*2.5;
+  }
+  if(e._lavaCharging){
+    e.x+=e._lavaChargeVx*ds;e.y+=e._lavaChargeVy*ds;
+    e._lavaChargeDur-=dt;
+    if(e._lavaChargeDur<=0||d<60){e._lavaCharging=false}
+    // 冲刺时留下火焰轨迹
+    if(Math.random()<0.5){
+      STATE.enemyProjectiles.push({
+        x:e.x+rand(-20,20),y:e.y+rand(-20,20),
+        vx:rand(-15,15),vy:rand(-15,15),
+        damage:Math.floor(e.atk*0.3),radius:6,life:600,
+        sourceId:e.id,color:'#ff6622',isShockwave:true,baseRadius:6,maxRadius:30
+      });
+    }
+  }
+
+  // 技能1: 熔岩爆发 (冷却5s / 3.5s) — 玩家脚下生成延迟爆炸
+  if(e.skill1Cd<=0){
+    e.skill1Cd=enrage?3500:5000;
+    const count=enrage?5:3;
+    for(let j=0;j<count;j++){
+      const ex=p.x+rand(-200,200),ey=p.y+rand(-200,200);
+      // 延迟爆炸弹，用特殊标记
+      STATE.enemyProjectiles.push({
+        x:ex,y:ey,vx:0,vy:0,
+        damage:Math.floor(e.atk*0.9),radius:8,life:900,
+        sourceId:e.id,color:'#ff4400',isShockwave:true,baseRadius:8,maxRadius:80,
+        _lavaDelay:600+rand(-200,200)
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'🌋 熔岩爆发!','#ff6622');
+  }
+
+  // 技能2: 火焰追踪 (冷却8s / 5s) — 3发强追踪火球
+  if(e.skill2Cd<=0&&d<800){
+    e.skill2Cd=enrage?5000:8000;
+    const count=enrage?5:3;
+    for(let i=0;i<count;i++){
+      const a=Math.atan2(p.y-e.y,p.x-e.x)+rand(-0.5,0.5);
+      STATE.enemyProjectiles.push({
+        x:e.x,y:e.y,
+        vx:Math.cos(a)*CONFIG.ENEMY_PROJECTILE.speed*0.45,
+        vy:Math.sin(a)*CONFIG.ENEMY_PROJECTILE.speed*0.45,
+        damage:Math.floor(e.atk*1.2),radius:CONFIG.ENEMY_PROJECTILE.radius+4,
+        life:7000,sourceId:e.id,color:'#ff8800',homing:1.0
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'🔥 追踪火球!','#ff8800');
+  }
+
+  // 技能3: 陨石雨 (冷却14s / 9s) — 大范围AOE，从屏幕外飞来
+  if(e.skill3Cd<=0){
+    e.skill3Cd=enrage?9000:14000;
+    const meteorCount=enrage?8:5;
+    for(let i=0;i<meteorCount;i++){
+      // 从随机方向飞来
+      const ma=rand(0,Math.PI*2),mdist=800+rand(0,400);
+      const mx=p.x+Math.cos(ma)*mdist,my=p.y+Math.sin(ma)*mdist;
+      const ta=Math.atan2(p.y-my,p.x-mx);
+      STATE.enemyProjectiles.push({
+        x:mx,y:my,
+        vx:Math.cos(ta)*CONFIG.ENEMY_PROJECTILE.speed*1.1,
+        vy:Math.sin(ta)*CONFIG.ENEMY_PROJECTILE.speed*1.1,
+        damage:Math.floor(e.atk*1.5),radius:10,life:2500,
+        sourceId:e.id,color:'#ff3300'
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'☄️ 陨石雨!','#ff3300');
+    triggerShake(10,500);
+  }
+}
+
+// ===== 森林守护者AI — 藤蔓缠绕·孢子毒云·召唤植物 =====
+function updateForestGuardian(e,dt,p,leadX,leadY,d,dx,dy,ds){
+  const enrage=e.mapBossPhase>=1;
+  if(e.skill1Cd===undefined){e.skill1Cd=0;e.skill2Cd=0;e.skill3Cd=0;e._forestData={}}
+  e.skill1Cd-=dt;e.skill2Cd-=dt;e.skill3Cd-=dt;
+
+  // 移动：远距离游走，保持400-600
+  const idealDist=enrage?350:500;
+  if(d>idealDist+80){e.x+=dx*e.speed*0.65*ds;e.y+=dy*e.speed*0.65*ds}
+  else if(d<idealDist-100){e.x-=dx*e.speed*0.7*ds;e.y-=dy*e.speed*0.7*ds}
+  // 缓慢环绕
+  e._forestOrbitAng=(e._forestOrbitAng||0)+0.003*ds;
+  e.x+=Math.cos(e._forestOrbitAng)*e.speed*0.3*ds;
+  e.y+=Math.sin(e._forestOrbitAng)*e.speed*0.3*ds;
+
+  // 技能1: 藤蔓缠绕 (冷却6s / 4s) — 减速弹幕环
+  if(e.skill1Cd<=0){
+    e.skill1Cd=enrage?4000:6000;
+    const count=enrage?16:10;
+    for(let i=0;i<count;i++){
+      const a=Math.PI*2*i/count+rand(-0.06,0.06);
+      STATE.enemyProjectiles.push({
+        x:e.x,y:e.y,
+        vx:Math.cos(a)*CONFIG.ENEMY_PROJECTILE.speed*0.55,
+        vy:Math.sin(a)*CONFIG.ENEMY_PROJECTILE.speed*0.55,
+        damage:Math.floor(e.atk*0.5),radius:CONFIG.ENEMY_PROJECTILE.radius+2,
+        life:3500,sourceId:e.id,color:'#66cc33',_snareSlow:true
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'🌿 藤蔓缠绕!','#88dd44');
+  }
+
+  // 技能2: 孢子毒云 (冷却9s / 6s) — 在玩家区域释放毒云
+  if(e.skill2Cd<=0&&d<700){
+    e.skill2Cd=enrage?6000:9000;
+    const cloudCount=enrage?4:2;
+    for(let c=0;c<cloudCount;c++){
+      const cx=p.x+rand(-180,180),cy=p.y+rand(-180,180);
+      for(let i=0;i<12;i++){
+        const a=Math.PI*2*i/12;
+        STATE.enemyProjectiles.push({
+          x:cx,y:cy,
+          vx:Math.cos(a)*25,vy:Math.sin(a)*25,
+          damage:Math.floor(e.atk*0.4),radius:5,life:2000,
+          sourceId:e.id,color:'#88ff44',isShockwave:true,baseRadius:5,maxRadius:55,
+          _sporeCloud:true
+        });
+      }
+    }
+    spawnFloatText(e.x,e.y-55,'☠️ 孢子毒云!','#aaff66');
+  }
+
+  // 技能3: 自然召唤 (冷却16s / 11s) — 召唤2只精英敌人
+  if(e.skill3Cd<=0&&STATE.enemies.filter(x=>x.sourceBossId===e.id).length<(enrage?4:2)){
+    e.skill3Cd=enrage?11000:16000;
+    const spawnCount=enrage?3:2;
+    for(let i=0;i<spawnCount;i++){
+      const sx=e.x+rand(-120,120),sy=e.y+rand(-120,120);
+      const summon=createEnemy(pickEnemyType(),{x:sx,y:sy},true);
+      summon.sourceBossId=e.id;summon.hp=Math.floor(summon.hp*0.6);
+      summon.xpValue=Math.floor(summon.xpValue*0.5);
+      STATE.enemies.push(summon);
+    }
+    spawnFloatText(e.x,e.y-55,'🌱 自然召唤!','#44cc22');
+  }
+}
+
+// ===== 亡灵君主AI — 灵魂吸取·暗影弹幕·分身·数据虚空 =====
+function updateCryptLord(e,dt,p,leadX,leadY,d,dx,dy,ds){
+  const enrage=e.mapBossPhase>=1;
+  if(e.skill1Cd===undefined){e.skill1Cd=0;e.skill2Cd=0;e.skill3Cd=0;e._cryptData={}}
+  e.skill1Cd-=dt;e.skill2Cd-=dt;e.skill3Cd-=dt;
+
+  // 移动：飘忽不定，喜欢中距离，偶尔传送
+  const idealDist=enrage?300:450;
+  if(d>idealDist+100){e.x+=dx*e.speed*0.55*ds;e.y+=dy*e.speed*0.55*ds}
+  else if(d<idealDist-100){e.x-=dx*e.speed*0.5*ds;e.y-=dy*e.speed*0.5*ds}
+  // 随机漂移模拟幽灵漂浮
+  e.x+=rand(-0.4,0.4)*ds;e.y+=rand(-0.4,0.4)*ds;
+  // 传送逻辑
+  e._cryptTeleportCd=(e._cryptTeleportCd||0)-dt;
+  if(e._cryptTeleportCd<=0&&d<250&&Math.random()<0.01){
+    e._cryptTeleportCd=enrage?4000:7000;
+    const ta=Math.atan2(p.y-e.y,p.x-e.x)+Math.PI+rand(-1,1);
+    const tdist=400+rand(0,200);
+    e.x=p.x+Math.cos(ta)*tdist;e.y=p.y+Math.sin(ta)*tdist;
+    spawnParticles(e.x,e.y,'#9944cc',12);
+    spawnFloatText(e.x,e.y-55,'🌀 虚空传送','#cc66ff');
+  }
+
+  // 技能1: 灵魂吸取 (冷却7s / 4.5s) — 向玩家发射吸取弹，命中回复BOSS血量
+  if(e.skill1Cd<=0&&d<800){
+    e.skill1Cd=enrage?4500:7000;
+    const count=enrage?5:3;
+    for(let i=0;i<count;i++){
+      const a=Math.atan2(p.y-e.y,p.x-e.x)+rand(-0.35,0.35);
+      STATE.enemyProjectiles.push({
+        x:e.x,y:e.y,
+        vx:Math.cos(a)*CONFIG.ENEMY_PROJECTILE.speed*0.4,
+        vy:Math.sin(a)*CONFIG.ENEMY_PROJECTILE.speed*0.4,
+        damage:Math.floor(e.atk*1.3),radius:CONFIG.ENEMY_PROJECTILE.radius+4,
+        life:6000,sourceId:e.id,color:'#cc44ff',homing:0.7,
+        healOnHit:Math.floor(e.maxHp*0.04)
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'💜 灵魂吸取!','#cc66ff');
+  }
+
+  // 技能2: 暗影弹幕 (冷却4s / 2.5s) — 快速多方向暗影弹
+  if(e.skill2Cd<=0){
+    e.skill2Cd=enrage?2500:4000;
+    const burstCount=enrage?20:12;
+    const ba=Math.atan2(p.y-e.y,p.x-e.x);
+    for(let i=0;i<burstCount;i++){
+      const a=ba+Math.PI*2*i/burstCount+rand(-0.05,0.05);
+      STATE.enemyProjectiles.push({
+        x:e.x,y:e.y,
+        vx:Math.cos(a)*CONFIG.ENEMY_PROJECTILE.speed*0.75,
+        vy:Math.sin(a)*CONFIG.ENEMY_PROJECTILE.speed*0.75,
+        damage:Math.floor(e.atk*0.55),radius:CONFIG.ENEMY_PROJECTILE.radius+1,
+        life:3000,sourceId:e.id,color:'#9966dd'
+      });
+    }
+    spawnFloatText(e.x,e.y-55,'👻 暗影弹幕!','#9966dd');
+  }
+
+  // 技能3: 分身术 (冷却18s / 12s) — 创建2个镜像分身
+  if(e.skill3Cd<=0){
+    e.skill3Cd=enrage?12000:18000;
+    const cloneCount=enrage?3:2;
+    for(let i=0;i<cloneCount;i++){
+      const ca=Math.PI*2*i/cloneCount+rand(-0.3,0.3),cdist=150+rand(0,100);
+      const cx=e.x+Math.cos(ca)*cdist,cy=e.y+Math.sin(ca)*cdist;
+      const clone=createEnemy('ghost',{x:cx,y:cy},true);
+      clone.isClone=true;clone.sourceBossId=e.id;
+      clone.hp=Math.floor(e.maxHp*0.15);clone.maxHp=clone.hp;
+      clone.atk=Math.floor(e.atk*0.5);clone.speed=e.speed*0.8;
+      clone.radius=24;clone.color='#9944cc';clone.xpValue=50;clone.goldValue=20;
+      clone._cloneLifetime=12000;
+      STATE.enemies.push(clone);
+    }
+    spawnFloatText(e.x,e.y-55,'👥 暗影分身!','#bb77ee');
+  }
+
+  // 管理分身过期
+  for(const ce of STATE.enemies){
+    if(ce.isClone&&ce.sourceBossId===e.id){
+      ce._cloneLifetime-=dt;
+      if(ce._cloneLifetime<=0){ce.hp=0}
+      // 分身渐隐
+      if(ce._cloneLifetime<2000)ce.alpha=(ce._cloneLifetime/2000);
+    }
+  }
+}
+
 // ===== 眼睛BOSS（第25关最终BOSS）AI =====
 function updateEyeBoss(e,dt,p,leadX,leadY,d,dx,dy,ds){
   // 阶段判定：0=Phase1(100-60%), 1=Phase2(60-30%), 2=Phase3(30-0%)
@@ -4411,7 +4639,7 @@ function updateEyeBoss(e,dt,p,leadX,leadY,d,dx,dy,ds){
 
   // 眼皮眨眼动画
   e.eyeBlinkTimer-=dt;
-  e.shootTimer-=dt;
+  e.shootTimer-=dt*STATE._bossAggroMul;
   if(e.eyeBlinkTimer<=0){
     if(e.eyeBlinkState===0){e.eyeBlinkState=1;e.eyeBlinkTimer=80+rand(-20,20)} // 闭眼
     else{e.eyeBlinkState=0;e.eyeBlinkTimer=2000+rand(0,3000)} // 睁眼
