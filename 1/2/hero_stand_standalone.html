@@ -109,6 +109,11 @@ canvas{
 .class-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;font-size:10px;transition:all 0.2s}
 .class-tag:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2)}
 .deco-line{width:180px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,160,40,0.6),transparent);margin:0 auto}
+.feature-tile{background:rgba(255,180,60,0.04);border:1px solid rgba(255,180,60,0.12);border-radius:8px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;transition:all 0.2s;cursor:default}
+.feature-tile:hover{background:rgba(255,180,60,0.1);border-color:rgba(255,180,60,0.3);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.5),0 0 24px rgba(255,150,30,0.08)}
+.feature-tile .ft-icon{font-size:28px;line-height:1}
+.feature-tile .ft-title{font-size:10px;color:rgba(220,200,160,0.85);letter-spacing:0.5px;line-height:1.3}
+.feature-tile .ft-sub{font-size:6px;color:rgba(200,200,200,0.32);line-height:1.5;max-width:110px}
 </style>
 </head>
 <body>
@@ -122,6 +127,12 @@ canvas{
     <span class="diff-indicator" id="hud-diff"></span>
     <span class="lv-badge">Lv.<span class="lv-num" id="hud-lv-top">1</span></span>
     <span class="boss-alert" id="boss-alert">⚠ BOSS ⚠</span>
+    <span id="hud-seals" style="display:flex;gap:4px;align-items:center">
+      <span id="hud-seal-ice" title="冰霜之印" style="font-size:13px;opacity:0.25;transition:all 0.3s">❄️</span>
+      <span id="hud-seal-fire" title="烈焰之印" style="font-size:13px;opacity:0.25;transition:all 0.3s">🔥</span>
+      <span id="hud-seal-nature" title="自然之印" style="font-size:13px;opacity:0.25;transition:all 0.3s">🌿</span>
+      <span id="hud-seal-shadow" title="暗影之印" style="font-size:13px;opacity:0.25;transition:all 0.3s">💀</span>
+    </span>
   </div>
   <canvas id="game-canvas" width="960" height="720"></canvas>
   <canvas id="minimap" width="120" height="120"></canvas>
@@ -196,23 +207,33 @@ canvas{
 
 <div class="modal-overlay active" id="modal-start" style="background:radial-gradient(ellipse at center,rgba(15,5,0,0.85) 0%,rgba(0,0,0,0.94) 70%);flex-direction:column;gap:0">
   <div id="start-particles"></div>
-  <div class="modal-box" style="min-width:540px;max-width:680px;padding:32px 36px;background:linear-gradient(180deg,rgba(12,6,2,0.93),rgba(6,3,1,0.96));border:3px solid rgba(255,140,40,0.35);animation:borderPulse 4s ease-in-out infinite;box-shadow:0 0 60px rgba(255,100,20,0.1),0 12px 60px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,200,100,0.04)">
-    <div style="font-size:42px;margin-bottom:8px;animation:iconPulse 3s ease-in-out infinite">🔥</div>
-    <h2 style="color:#ff9933;font-size:28px;letter-spacing:4px;margin-bottom:6px;animation:titlePulse 3s ease-in-out infinite;line-height:1.4">HERO'S STAND</h2>
-    <div class="deco-line" style="margin-bottom:10px"></div>
-    <p style="font-size:11px;color:#cc8844;margin-bottom:2px;animation:subtitleShimmer 2.5s ease-in-out infinite">英雄幸存者</p>
-    <p style="font-size:8px;color:rgba(180,140,80,0.5);margin-bottom:14px;letter-spacing:1px">ROGUELIKE · 弹幕生存 · 25波终局</p>
-    <!-- 流派标签已移除 -->
-    <div style="font-size:9px;color:rgba(200,200,200,0.5);margin-bottom:18px;line-height:2.2">
-      🎮 WASD移动 · ⌨ 空格=闪避(耗体力·擦弹回体力)<br>
-      💥 Q=能量爆发 · 🔨 锤子=击晕旁白<br>
-      👾 BOSS波: 5/10/15/20/25 (25波=最终BOSS)<br>
-      👹 21波起小BOSS(最多2个) · 🗺 地图系统(冰/熔岩/森林/墓穴)
+  <div class="modal-box" style="min-width:580px;max-width:780px;padding:36px 40px;background:linear-gradient(180deg,rgba(12,6,2,0.93),rgba(6,3,1,0.96));border:3px solid rgba(255,140,40,0.35);animation:borderPulse 4s ease-in-out infinite;box-shadow:0 0 60px rgba(255,100,20,0.1),0 12px 60px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,200,100,0.04)">
+    <div style="font-size:52px;margin-bottom:6px;animation:iconPulse 3s ease-in-out infinite">🔥</div>
+    <h2 style="color:#ff9933;font-size:34px;letter-spacing:5px;margin-bottom:6px;animation:titlePulse 3s ease-in-out infinite;line-height:1.3">HERO'S STAND</h2>
+    <div class="deco-line" style="width:220px;margin-bottom:12px"></div>
+    <p style="font-size:12px;color:#cc8844;margin-bottom:2px;animation:subtitleShimmer 2.5s ease-in-out infinite">英雄幸存者</p>
+    <p style="font-size:9px;color:rgba(180,140,80,0.5);margin-bottom:22px;letter-spacing:1px">ROGUELIKE · 弹幕生存 · 25波终局 · 5大主题地图</p>
+    <!-- 玩法特性磁贴 -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;padding:0 4px">
+      <div class="feature-tile"><span class="ft-icon">🎯</span><span class="ft-title">6种弹道进化</span><span class="ft-sub">穿透·分裂·追踪·弹射·环绕</span></div>
+      <div class="feature-tile"><span class="ft-icon">🔥</span><span class="ft-title">火冰雷元素</span><span class="ft-sub">灼烧·减速冻结·连锁闪电</span></div>
+      <div class="feature-tile"><span class="ft-icon">🏠</span><span class="ft-title">3×3房间探索</span><span class="ft-sub">清空房间→解锁通路→BOSS</span></div>
+      <div class="feature-tile"><span class="ft-icon">🗺</span><span class="ft-title">5大主题地图</span><span class="ft-sub">遗迹·冰霜·熔岩·密林·墓穴</span></div>
+      <div class="feature-tile"><span class="ft-icon">⚡</span><span class="ft-title">流派Q技能</span><span class="ft-sub">狂暴·铁壁·磁暴三流派</span></div>
+      <div class="feature-tile"><span class="ft-icon">💨</span><span class="ft-title">闪避擦弹</span><span class="ft-sub">空格冲刺·擦弹幕回体力</span></div>
+      <div class="feature-tile"><span class="ft-icon">👾</span><span class="ft-title">25波BOSS</span><span class="ft-sub">5·10·15·20·25波BOSS</span></div>
+      <div class="feature-tile"><span class="ft-icon">🎁</span><span class="ft-title">传说开箱</span><span class="ft-sub">Lv.25 CS:GO风格抽奖</span></div>
+      <div class="feature-tile"><span class="ft-icon">🏰</span><span class="ft-title">迷宫副本</span><span class="ft-sub">Lv.10 40×40随机迷宫</span></div>
+      <div class="feature-tile"><span class="ft-icon">💀</span><span class="ft-title">BOSS机制</span><span class="ft-sub">火种追逐·三阶段·弹幕地狱</span></div>
     </div>
-    <div id="start-buttons" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-start primary" onclick="startGame()" style="animation:fadeInUp 0.5s 0.2s ease;animation-fill-mode:both">⚔ 开始游戏</button>
-      <button class="btn-start gold" id="btn-continue" onclick="continueGame()" style="display:none;animation:fadeInUp 0.5s 0.3s ease;animation-fill-mode:both">💾 继续</button>
-      <button class="btn-start secondary" onclick="openPermShop()" style="animation:fadeInUp 0.5s 0.4s ease;animation-fill-mode:both">⬆ 永久升级</button>
+    <!-- 操作说明 -->
+    <div style="font-size:8px;color:rgba(200,200,200,0.35);margin-bottom:20px;letter-spacing:0.5px">
+      🎮 WASD移动 · 💨 空格闪避 · ⚡ Q技能 · 🔨 锤子击晕旁白 · ⏸ PAUSE暂停
+    </div>
+    <div id="start-buttons" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-start primary" onclick="startGame()" style="font-size:24px;padding:20px 48px;animation:fadeInUp 0.5s 0.2s ease;animation-fill-mode:both">⚔ 开始游戏</button>
+      <button class="btn-start gold" id="btn-continue" onclick="continueGame()" style="font-size:16px;padding:14px 32px;display:none;animation:fadeInUp 0.5s 0.3s ease;animation-fill-mode:both">💾 继续</button>
+      <button class="btn-start secondary" onclick="openPermShop()" style="font-size:16px;padding:14px 32px;animation:fadeInUp 0.5s 0.4s ease;animation-fill-mode:both">⬆ 永久升级</button>
     </div>
   </div>
 </div>
@@ -221,7 +242,7 @@ canvas{
   <div class="modal-box">
     <h2 style="color:var(--accent);font-size:24px">🎯 选择流派</h2>
     <p style="font-size:14px">选择一种流派，升级时更大概率刷出对应技能</p>
-    <p style="font-size:8px;color:var(--text-dim);margin-top:4px">💡 所有流派通用：空格=闪避冲刺 | Q=能量爆发</p>
+    <p style="font-size:8px;color:var(--text-dim);margin-top:4px">💡 空格闪避=通用 | Q=流派专属(狂暴/铁壁/磁暴)</p>
     <div style="display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap">
       <button class="btn accent" onclick="startWithClass('atk')" style="font-size:16px;padding:16px 18px;display:flex;flex-direction:column;align-items:center;gap:4px">
         <span style="font-size:32px">⚔️</span><span>输出流</span><span style="font-size:8px;color:var(--text-dim)">破甲·连击·毒素·斩杀</span>
@@ -277,7 +298,7 @@ const CONFIG = {
     // 输出
     armorPen:0,comboChance:0,poisonDmg:0,executeBonus:0,critChance:0,critMult:2.0,
     // 肉盾
-    lifesteal:0,reflect:0,damageReduction:0,shield:0,maxShield:0,
+    lifesteal:1,reflect:0,damageReduction:0,shield:0,maxShield:0,
     // 发育
     xpBonus:0,goldBonus:0,
     // 护盾恢复计时
@@ -505,7 +526,7 @@ const STATE={
   comboCount:0,comboTimer:0,
   playerFacing:0,playerFrame:0,playerFrameTimer:0,playerSpriteReady:false,boss15SpriteReady:false,boss10SpriteReady:false,
   bgImage:null,bgLoaded:false,bgImgW:800,bgImgH:600,bgTile:null,fireMapBg:null,fireMapBgLoaded:false,fireMapBgW:5000,fireMapBgH:5000,
-  camera:{x:0,y:0},currentMap:'field',currentTheme:0,mapsCleared:0,activeMap:null,maze:null,portalGlow:0,bloodBuff:false,bloodTextTimer:0,mazeBossAlive:false,fireBuff:false,fireBuffTextTimer:0,fireSeed:null,narrator:null,narratorStun:0,narratorFakeDrops:[],narratorFakeEnemies:[],_slotMachine:null,_slotFreeze:false,boss10Active:false,speedOrbs:[],speedBoost:0,speedOrbTimer:0,speedOrbHint:0,boss10Revive:true,boss10ReviveText:0,fakeFireSeeds:[],fakeFireHint:0,fireSeedSwapTimer:15000,
+  camera:{x:0,y:0},currentMap:'field',currentTheme:0,mapsCleared:0,activeMap:null,maze:null,portalGlow:0,bloodBuff:false,bloodTextTimer:0,mazeBossAlive:false,fireBuff:false,fireBuffTextTimer:0,fireSeed:null,narrator:null,narratorStun:0,narratorFakeDrops:[],narratorFakeEnemies:[],_slotMachine:null,_slotFreeze:false,boss10Active:false,speedOrbs:[],speedBoost:0,speedOrbTimer:0,speedOrbHint:0,boss10Revive:true,boss10ReviveText:0,fakeFireSeeds:[],fakeFireHint:0,fireSeedSwapTimer:15000,seals:{ice:false,fire:false,nature:false,shadow:false},sealPortalActive:{ice:false,lava:false,forest:false,crypt:false},sealHintTimer:0,_sealHint25Timer:0,
   mapState:{field:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null,obstacles:[],destructibles:[]},maze:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null},fireField:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null},ice:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},lava:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},forest:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},crypt:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false}},
   // 房间系统
   roomState:{currentRoom:4,lockedRooms:[0,1,2,3,5,6,7,8],roomCleared:[false,false,false,false,false,false,false,false,false],roomTextTimer:0},
@@ -524,6 +545,7 @@ const DOM={
   hudCombo:$('hud-combo'),hudComboDisp:$('hud-combo-disp'),hudBonus:$('hud-bonus'),hudBonusDisp:$('hud-bonus-disp'),
   hudSkillDisp:$('hud-skill-disp'),hudSkill:$('hud-skill'),
   hudDashDisp:$('hud-dash-disp'),hudDash:$('hud-dash'),
+  hudSealIce:$('hud-seal-ice'),hudSealFire:$('hud-seal-fire'),hudSealNature:$('hud-seal-nature'),hudSealShadow:$('hud-seal-shadow'),
 };
 // ====== 开始页面粒子系统 ======
 let _startParticles=[],_startParticleTimer=0;
@@ -1760,6 +1782,23 @@ function updateCombat(dt){
   }
 }
 function dealDamage(enemy,dmg){
+  // 最终BOSS封印检查：需集齐四元素封印才能造成伤害
+  if(enemy.isFinalBoss){
+    const hasAllSeals=STATE.seals.ice&&STATE.seals.fire&&STATE.seals.nature&&STATE.seals.shadow;
+    if(!hasAllSeals){
+      const missing=[];
+      if(!STATE.seals.ice)missing.push('冰霜之印');
+      if(!STATE.seals.fire)missing.push('烈焰之印');
+      if(!STATE.seals.nature)missing.push('自然之印');
+      if(!STATE.seals.shadow)missing.push('暗影之印');
+      if(STATE._sealHint25Timer<=0){
+        spawnFloatText(enemy.x,enemy.y-enemy.radius-40,'魔王被元素封印保护!','#ff0000');
+        spawnFloatText(enemy.x,enemy.y-enemy.radius-65,'缺少: '+missing.join(' / '),'#ff6644');
+        STATE._sealHint25Timer=5000;
+      }
+      return;
+    }
+  }
   if(enemy.isWave15Boss&&!STATE.fireBuff){spawnFloatText(enemy.x,enemy.y-30,'需要火种!','#ff8800');return}
   if(enemy.type==='ghost'&&enemy.phaseTimer<1400)return;
   // 隐身敌人受伤时显形
@@ -1795,9 +1834,24 @@ function killEnemy(enemy){
   if(STATE.comboCount>=10&&STATE.comboCount%10===0)spawnFloatText(enemy.x,enemy.y-20,STATE.comboCount+' COMBO!','#ffd700');
   if(enemy.type==='boss'){
     if(enemy.isFinalBoss){victory();return}
-    if(enemy.isMazeBoss){STATE.mazeBossAlive=false;spawnFloatText(enemy.x,enemy.y-24,'守护者陨落!','#ff4444')}else if(enemy.isMapBoss&&enemy.mapType){const mt=enemy.mapType;STATE.mapState[mt].bossAlive=false;spawnFloatText(enemy.x,enemy.y-24,'🗡 '+CONFIG.MAP_DEFS[mt].bossName+' 被击败!','#ffd700');sfxBossDeath();triggerShake(14,600)}
-    else if(enemy.isMapBoss){spawnFloatText(enemy.x,enemy.y-24,'🗡 '+getCurrentTheme().bossName+' 被击败!','#ffd700');sfxBossDeath();triggerShake(14,600);STATE.wave.bossActive=false}
-    else{STATE.stats.bossKills++;STATE.wave.bossActive=false;if(enemy.isWave10Boss){STATE.boss10Active=false;setMusicSpeed(1);STATE.speedOrbs=[];STATE.speedBoost=0;STATE.speedOrbHint=0}spawnFloatText(enemy.x,enemy.y-24,'BOSS DOWN!','#f0883e');sfxBossDeath();triggerShake(18,700)}
+    if(enemy.isMazeBoss){STATE.mazeBossAlive=false;spawnFloatText(enemy.x,enemy.y-24,'守护者陨落!','#ff4444')}else if(enemy.isMapBoss&&enemy.mapType){const mt=enemy.mapType;STATE.mapState[mt].bossAlive=false;spawnFloatText(enemy.x,enemy.y-24,'🗡 '+CONFIG.MAP_DEFS[mt].bossName+' 被击败!','#ffd700');sfxBossDeath();triggerShake(14,600);
+      // 授予元素封印
+      const sealKey=mt==='ice'?'ice':mt==='lava'?'fire':mt==='forest'?'nature':mt==='crypt'?'shadow':null;
+      if(sealKey&&!STATE.seals[sealKey]){
+        STATE.seals[sealKey]=true;
+        const sealNames={ice:'冰霜之印',fire:'烈焰之印',nature:'自然之印',shadow:'暗影之印'};
+        const sealColors={ice:'#88ccff',fire:'#ff6622',nature:'#55cc44',shadow:'#aa55dd'};
+        spawnFloatText(enemy.x,enemy.y-55,'获得 '+sealNames[sealKey]+'!',sealColors[sealKey]);triggerShake(10,400);
+        if(STATE.seals.ice&&STATE.seals.fire&&STATE.seals.nature&&!STATE.sealPortalActive.crypt){STATE.sealPortalActive.crypt=true;spawnFloatText(enemy.x,enemy.y-75,'亡灵墓穴的封印解除!','#aa55dd');triggerShake(6,300)}
+      }
+    }else if(enemy.isMapBoss){spawnFloatText(enemy.x,enemy.y-24,'🗡 '+getCurrentTheme().bossName+' 被击败!','#ffd700');sfxBossDeath();triggerShake(14,600);STATE.wave.bossActive=false}
+    else{STATE.stats.bossKills++;STATE.wave.bossActive=false;if(enemy.isWave10Boss){STATE.boss10Active=false;setMusicSpeed(1);STATE.speedOrbs=[];STATE.speedBoost=0;STATE.speedOrbHint=0}spawnFloatText(enemy.x,enemy.y-24,'BOSS DOWN!','#f0883e');sfxBossDeath();triggerShake(18,700);
+      // 击败波次BOSS激活对应传送门
+      const wn=STATE.wave.number;
+      if(wn===10&&!STATE.sealPortalActive.ice){STATE.sealPortalActive.ice=true;spawnFloatText(enemy.x,enemy.y-60,'冰霜洞窟的封印解除!','#88ccff')}
+      if(wn===15&&!STATE.sealPortalActive.lava){STATE.sealPortalActive.lava=true;spawnFloatText(enemy.x,enemy.y-60,'熔岩地狱的封印解除!','#ff6622')}
+      if(wn===20&&!STATE.sealPortalActive.forest){STATE.sealPortalActive.forest=true;spawnFloatText(enemy.x,enemy.y-60,'幽暗密林的封印解除!','#55cc44')}
+    }
     for(let i=0;i<20;i++)STATE.drops.push({x:enemy.x+rand(-55,55),y:enemy.y+rand(-55,55),type:'gold',value:randInt(10,30),radius:CONFIG.DROP.radius+2,life:CONFIG.DROP.lifetime+6000});
     // BOSS必掉技能球
     STATE.drops.push({x:enemy.x+rand(-10,10),y:enemy.y+rand(-10,10),type:'skill',value:1,radius:8,life:CONFIG.DROP.lifetime+8000});
@@ -1951,7 +2005,7 @@ function render(){
   const wh=getMapWH(),WW=wh.W,WH=wh.H;
   ctx.strokeStyle='rgba(255,50,50,0.5)';ctx.lineWidth=4;ctx.strokeRect(0,0,WW,WH);
   // 传送门
-	  if(STATE.currentMap==='field'){if(STATE.player.level===10)drawPortal(CONFIG.PORTAL_POS.x,CONFIG.PORTAL_POS.y,'maze');if(STATE.wave.number>=15&&!STATE._hideFirePortal)drawPortal(CONFIG.WORLD_W/2,CONFIG.WORLD_H-50,'fire');for(const mkey of Object.keys(CONFIG.MAP_DEFS)){const md=CONFIG.MAP_DEFS[mkey];drawCorridorOpening(md.entryField.x,md.entryField.y,mkey,md)}}else if(STATE.currentMap==='fireField'){drawPortal(CONFIG.FIRE_WORLD_W/2,50,'fireReturn')}else if(STATE.currentMap==='maze'){const c=CONFIG.MAZE_CELL,rc=CONFIG.RETURN_CELL;drawPortal(rc.col*c+c/2,rc.row*c+c/2,'mazeReturn')}else if(CONFIG.MAP_DEFS[STATE.currentMap]){const md=CONFIG.MAP_DEFS[STATE.currentMap];drawCorridorOpening(md.entrySelf.x,md.entrySelf.y,'field',md)}
+	  if(STATE.currentMap==='field'){if(STATE.player.level===10)drawPortal(CONFIG.PORTAL_POS.x,CONFIG.PORTAL_POS.y,'maze');if(STATE.wave.number>=15&&!STATE._hideFirePortal)drawPortal(CONFIG.WORLD_W/2,CONFIG.WORLD_H-50,'fire');for(const mkey of Object.keys(CONFIG.MAP_DEFS)){const md=CONFIG.MAP_DEFS[mkey];if(STATE.sealPortalActive[mkey]){drawCorridorOpening(md.entryField.x,md.entryField.y,mkey,md);if(STATE.seals[mkey==='lava'?'fire':mkey==='forest'?'nature':mkey==='crypt'?'shadow':mkey]){ctx.fillStyle='#ffd700';ctx.font='bold 13px "Press Start 2P",monospace';ctx.textAlign='center';ctx.shadowColor='#ffd700';ctx.shadowBlur=8;ctx.fillText('✓',md.entryField.x,md.entryField.y-22);ctx.shadowBlur=0}}else{drawSealedCorridorOpening(md.entryField.x,md.entryField.y,mkey,md)}}}else if(STATE.currentMap==='fireField'){drawPortal(CONFIG.FIRE_WORLD_W/2,50,'fireReturn')}else if(STATE.currentMap==='maze'){const c=CONFIG.MAZE_CELL,rc=CONFIG.RETURN_CELL;drawPortal(rc.col*c+c/2,rc.row*c+c/2,'mazeReturn')}else if(CONFIG.MAP_DEFS[STATE.currentMap]){const md=CONFIG.MAP_DEFS[STATE.currentMap];drawCorridorOpening(md.entrySelf.x,md.entrySelf.y,'field',md)}
   ctx.restore();
   if(STATE.bossFlash>0){ctx.fillStyle=`rgba(255,0,0,${STATE.bossFlash/400*0.18})`;ctx.fillRect(0,0,CW,CH)}
   if(STATE.boss10Active){ctx.fillStyle='rgba(30,80,220,0.13)';ctx.fillRect(0,0,CW,CH)}
@@ -2565,6 +2619,19 @@ function updateHUD(){
   const hpPct=(p.hp/p.maxHp*100).toFixed(0);DOM.hpFill.style.width=hpPct+'%';DOM.hpText.textContent=Math.ceil(p.hp)+(p.shield>0?' (+'+Math.ceil(p.shield)+')':'')+' / '+p.maxHp;
   const xpPct=(p.xp/p.xpToNext*100).toFixed(0);DOM.xpFill.style.width=xpPct+'%';DOM.xpText.textContent=p.xp+' / '+p.xpToNext;
   DOM.bossAlert.classList.toggle('active',STATE.wave.bossActive);
+  // 封印指示器状态
+  const sealMap={ice:DOM.hudSealIce,fire:DOM.hudSealFire,nature:DOM.hudSealNature,shadow:DOM.hudSealShadow};
+  const sealPortalMap={ice:'ice',fire:'lava',nature:'forest',shadow:'crypt'};
+  for(const key of Object.keys(sealMap)){const el=sealMap[key];if(!el)continue;
+    if(STATE.seals[key]){el.style.opacity='1';el.style.filter='drop-shadow(0 0 6px #ffd700)'}
+    else if(STATE.sealPortalActive[sealPortalMap[key]]){el.style.opacity='0.55';el.style.filter='none'}
+    else{el.style.opacity='0.25';el.style.filter='none'}
+  }
+  // 波25封印警告
+  if(STATE.wave.number===25&&STATE.wave.bossActive){
+    const ms=[];if(!STATE.seals.ice)ms.push('冰');if(!STATE.seals.fire)ms.push('火');if(!STATE.seals.nature)ms.push('自然');if(!STATE.seals.shadow)ms.push('暗影');
+    if(ms.length>0){DOM.hudTheme.textContent='缺少封印: '+ms.join('/');DOM.hudTheme.style.color='#ff4444'}
+  }
   DOM.btnPause.textContent=STATE.paused?'▶ RESUME':'⏸ PAUSE';
   const hb=$('btn-hammer');if(STATE._draggingHammer){hb.textContent='🎯';hb.style.opacity=1;hb.style.background='rgba(240,136,62,0.4)'}else if(STATE.hammerCd>0){hb.textContent=Math.ceil(STATE.hammerCd/1000)+'s';hb.style.opacity=0.5;hb.style.background='rgba(240,136,62,0.15)'}else{hb.textContent='🔨';hb.style.opacity=1;hb.style.background='rgba(240,136,62,0.15)'}
   if(p.shield>0){DOM.hudShieldDisp.style.display='inline';DOM.hudShield.textContent=Math.ceil(p.shield)}else{DOM.hudShieldDisp.style.display='none'}
@@ -2680,7 +2747,7 @@ function resetState(){
   STATE.wave={number:1,totalEnemies:5,spawned:0,killed:0,bossActive:false,spawnQueue:[],spawnTimer:0,spawnInterval:350,waveDelay:1500,waveDelayTimer:0,transitioning:false};
   STATE.stats={kills:0,bossKills:0,totalGold:0,eliteKills:0};STATE.attackCooldown=0;STATE.invincibleTimer=0;
   STATE.screenShake={intensity:0,duration:0};STATE.bossFlash=0;STATE.horrorFlicker=0;STATE.horrorTimer=0;STATE.comboCount=0;STATE.comboTimer=0;STATE.playerFacing=0;STATE.playerFrame=0;STATE.playerFrameTimer=0;
-  STATE.autoFire=false;STATE.aimAssist=false;STATE.mouseDown=false;STATE.lvl20Skill=null;STATE._unboxing=false;STATE.currentMap='field';STATE.currentTheme=0;STATE.mapsCleared=0;STATE.maze=null;STATE.portalGlow=0;STATE._portalGraceTimer=0;STATE.portalCooldowns={};STATE.bloodBuff=false;STATE.bloodTextTimer=0;STATE.fireBuff=false;STATE.fireBuffTextTimer=0;STATE.fireSeed=null;STATE.mazeBossAlive=false;STATE.narrator=null;STATE._hideFirePortal=false;STATE._controlReverse=0;STATE._doppel=null;STATE._doppelTimer=0;STATE.narratorFakeDrops=[];STATE.narratorFakeEnemies=[];STATE.narratorPuddles=[];STATE.narratorWalls=[];STATE.narratorStealGold=0;STATE._slotMachine=null;STATE._slotFreeze=false;STATE.skillActive=0;STATE.skillCooldown=0;STATE._frenzyEnd=0;STATE._ironWallEnd=0;STATE._magnetEnd=0;STATE.hammerCd=0;STATE.boss10Active=false;setMusicSpeed(1);STATE.speedOrbs=[];STATE.speedBoost=0;STATE.speedOrbTimer=0;STATE.speedOrbHint=0;STATE.boss10Revive=true;STATE.boss10ReviveText=0;STATE.fakeFireSeeds=[];STATE.fakeFireHint=0;STATE.fireSeedSwapTimer=15000;
+  STATE.autoFire=false;STATE.aimAssist=false;STATE.mouseDown=false;STATE.lvl20Skill=null;STATE._unboxing=false;STATE.currentMap='field';STATE.currentTheme=0;STATE.mapsCleared=0;STATE.maze=null;STATE.portalGlow=0;STATE._portalGraceTimer=0;STATE.portalCooldowns={};STATE.bloodBuff=false;STATE.bloodTextTimer=0;STATE.fireBuff=false;STATE.fireBuffTextTimer=0;STATE.fireSeed=null;STATE.mazeBossAlive=false;STATE.narrator=null;STATE.seals={ice:false,fire:false,nature:false,shadow:false};STATE.sealPortalActive={ice:false,lava:false,forest:false,crypt:false};STATE.sealHintTimer=0;STATE._sealHint25Timer=0;STATE._hideFirePortal=false;STATE._controlReverse=0;STATE._doppel=null;STATE._doppelTimer=0;STATE.narratorFakeDrops=[];STATE.narratorFakeEnemies=[];STATE.narratorPuddles=[];STATE.narratorWalls=[];STATE.narratorStealGold=0;STATE._slotMachine=null;STATE._slotFreeze=false;STATE.skillActive=0;STATE.skillCooldown=0;STATE._frenzyEnd=0;STATE._ironWallEnd=0;STATE._magnetEnd=0;STATE.hammerCd=0;STATE.boss10Active=false;setMusicSpeed(1);STATE.speedOrbs=[];STATE.speedBoost=0;STATE.speedOrbTimer=0;STATE.speedOrbHint=0;STATE.boss10Revive=true;STATE.boss10ReviveText=0;STATE.fakeFireSeeds=[];STATE.fakeFireHint=0;STATE.fireSeedSwapTimer=15000;
   STATE.mapState={field:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,obstacles:[],destructibles:[]},maze:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null},fireField:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null},ice:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},lava:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},forest:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false},crypt:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,bossAlive:false,obstacles:[],destructibles:[],decorations:[],terrainGenerated:false}};
 	  STATE.obstacles=[];STATE.destructibles=[];STATE.decorations=[];
 }
@@ -2709,6 +2776,7 @@ function saveGame(){
     wave:{number:STATE.wave.number},
     stats:{kills:STATE.stats.kills,bossKills:STATE.stats.bossKills,totalGold:STATE.stats.totalGold,eliteKills:STATE.stats.eliteKills},
     currentMap:STATE.currentMap,currentTheme:STATE.currentTheme,mapsCleared:STATE.mapsCleared,bloodBuff:STATE.bloodBuff,fireBuff:STATE.fireBuff,mazeGrid:STATE.maze?STATE.maze.grid.map(r=>r.map(c=>({n:c.n,s:c.s,e:c.e,w:c.w}))):null,
+    seals:STATE.seals,sealPortalActive:STATE.sealPortalActive,
     playerClass:STATE.playerClass,
     timestamp:Date.now()
   };
@@ -2728,6 +2796,8 @@ function loadGame(){
     STATE.playerClass=d.playerClass||null;
     STATE.musicVolume=d.musicVolume||70;STATE.musicMuted=d.musicMuted||false;STATE.muted=d.muted||false;
     STATE.currentMap=d.currentMap||'field';STATE.currentTheme=d.currentTheme||0;STATE.mapsCleared=d.mapsCleared||0;STATE.bloodBuff=d.bloodBuff||false;STATE.fireBuff=d.fireBuff||false;
+    STATE.seals=d.seals||{ice:false,fire:false,nature:false,shadow:false};
+    STATE.sealPortalActive=d.sealPortalActive||{ice:false,lava:false,forest:false,crypt:false};
     if(d.mazeGrid){STATE.maze={cols:CONFIG.MAZE_COLS,rows:CONFIG.MAZE_ROWS,cell:CONFIG.MAZE_CELL,grid:d.mazeGrid}}
     STATE.portalCooldowns=d.portalCooldowns||{};
   }catch(e){return false}
@@ -2752,6 +2822,7 @@ function toggleSave(){
     wave:{number:STATE.wave.number},
     stats:{kills:STATE.stats.kills,bossKills:STATE.stats.bossKills,totalGold:STATE.stats.totalGold,eliteKills:STATE.stats.eliteKills},
     currentMap:STATE.currentMap,currentTheme:STATE.currentTheme,mapsCleared:STATE.mapsCleared,bloodBuff:STATE.bloodBuff,mazeGrid:STATE.maze?STATE.maze.grid.map(r=>r.map(c=>({n:c.n,s:c.s,e:c.e,w:c.w}))):null,
+    seals:STATE.seals,sealPortalActive:STATE.sealPortalActive,
     playerClass:STATE.playerClass,
     timestamp:Date.now()
   };
@@ -2770,6 +2841,8 @@ function loadSavePoint(){
     STATE.playerClass=d.playerClass||null;
     STATE.musicVolume=d.musicVolume||70;STATE.musicMuted=d.musicMuted||false;STATE.muted=d.muted||false;
     STATE.currentMap=d.currentMap||'field';STATE.currentTheme=d.currentTheme||0;STATE.mapsCleared=d.mapsCleared||0;STATE.bloodBuff=d.bloodBuff||false;
+    STATE.seals=d.seals||{ice:false,fire:false,nature:false,shadow:false};
+    STATE.sealPortalActive=d.sealPortalActive||{ice:false,lava:false,forest:false,crypt:false};
     if(d.mazeGrid){STATE.maze={cols:CONFIG.MAZE_COLS,rows:CONFIG.MAZE_ROWS,cell:CONFIG.MAZE_CELL,grid:d.mazeGrid}}
   }catch(e){return}
   STATE.screen='playing';STATE.enemies=[];STATE.projectiles=[];STATE.enemyProjectiles=[];STATE.drops=[];STATE.particles=[];STATE.floatTexts=[];STATE.mapState={field:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null},maze:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null},fireField:{enemies:[],projectiles:[],enemyProjectiles:[],drops:[],particles:[],floatTexts:[],wave:null,fireSeed:null}};STATE.attackCooldown=0;STATE.invincibleTimer=0;STATE.screenShake={intensity:0,duration:0};STATE.bossFlash=0;STATE.horrorFlicker=0;STATE.horrorTimer=0;STATE.comboCount=0;STATE.comboTimer=0;STATE.playerFacing=0;STATE.playerFrame=0;STATE.playerFrameTimer=0;STATE.fireBuff=false;STATE.fireBuffTextTimer=0;STATE.fireSeed=null;STATE.mazeBossAlive=false;STATE.narrator=null;STATE._hideFirePortal=false;STATE._controlReverse=0;STATE._doppel=null;STATE._doppelTimer=0;STATE.narratorFakeDrops=[];STATE.narratorFakeEnemies=[];STATE.narratorPuddles=[];STATE.narratorWalls=[];STATE.narratorStealGold=0;STATE._slotMachine=null;STATE._slotFreeze=false;STATE.skillActive=0;STATE.skillCooldown=0;STATE._frenzyEnd=0;STATE._ironWallEnd=0;STATE._magnetEnd=0;STATE.hammerCd=0;STATE._draggingHammer=false;showModal(null);initWave(STATE.wave.number);setMusicVolume(STATE.musicVolume);updateHUD();lastTime=performance.now();startMusic();
@@ -2898,6 +2971,8 @@ function update(dt){
   }
   if(STATE.skillCooldown>0){STATE.skillCooldown-=dt;if(STATE.skillCooldown<=0)STATE.skillCooldown=0}
   if(STATE.hammerCd>0){STATE.hammerCd-=dt;if(STATE.hammerCd<=0)STATE.hammerCd=0}
+  if(STATE.sealHintTimer>0)STATE.sealHintTimer-=dt;
+  if(STATE._sealHint25Timer>0)STATE._sealHint25Timer-=dt;
   if(p.dodgeEnergy<p.dodgeMaxEnergy)p.dodgeEnergy=Math.min(p.dodgeMaxEnergy,p.dodgeEnergy+25*dt/1000);
   if(STATE._draggingHammer&&Date.now()-STATE._dragStart>5000){STATE._draggingHammer=false;STATE.hammerCd=7000;spawnFloatText(STATE.player.x,STATE.player.y-30,'超时!','#ff4444')}
   // 磁暴吸取全屏掉落
@@ -3983,13 +4058,25 @@ function drawCorridorOpening(x,y,mapKey,mapDef){
   ctx.shadowColor=mapDef.entryColor;ctx.shadowBlur=6;
   ctx.fillText(mapDef.name,x,y-r*1.1-7);ctx.shadowBlur=0;
 }
+function drawSealedCorridorOpening(x,y,mapKey,mapDef){
+  const r=30;
+  ctx.globalAlpha=0.35;
+  ctx.fillStyle='#333';ctx.fillRect(x-r*0.7,y-r*1.1,r*1.4,r*2.2);
+  ctx.strokeStyle='#555';ctx.lineWidth=2.5;ctx.strokeRect(x-r*0.7,y-r*1.1,r*1.4,r*2.2);
+  ctx.fillStyle='#444';ctx.fillRect(x-r*0.7+3,y-r*1.1+3,r*1.4-6,r*2.2-6);
+  ctx.fillStyle='#999';ctx.font='bold 8px "Press Start 2P",monospace';ctx.textAlign='center';
+  ctx.fillText('🔒 '+mapDef.name,x,y-r*1.1-7);ctx.globalAlpha=1;
+}
 function checkMapEdge(){if(STATE._portalGraceTimer>0)return;
   const p=STATE.player;
   if(STATE.currentMap==='field'){
     const conn=CONFIG.MAP_CONNECTIONS.field;
     for(const dir of Object.keys(conn)){
       const target=conn[dir],md=CONFIG.MAP_DEFS[target];
-      if(md&&dist(p.x,p.y,md.entryField.x,md.entryField.y)<50&&!(STATE.portalCooldowns['field_'+target] > STATE._now))enterMap(target,dir),STATE.portalCooldowns['field_'+target]=STATE._now+10000;
+      if(!md)continue;
+      const sk=target==='ice'?'ice':target==='lava'?'lava':target==='forest'?'forest':target==='crypt'?'crypt':null;
+      if(!STATE.sealPortalActive[sk]){if(dist(p.x,p.y,md.entryField.x,md.entryField.y)<80&&STATE.sealHintTimer<=0){const hints={ice:'冰霜洞窟被封印——需击败第10波BOSS',lava:'熔岩地狱被封印——需击败第15波BOSS',forest:'幽暗密林被封印——需击败第20波BOSS',crypt:'亡灵墓穴被封印——需集齐3个元素封印'};spawnFloatText(p.x,p.y-30,hints[target],'#ff6644');STATE.sealHintTimer=8000}continue}
+      if(dist(p.x,p.y,md.entryField.x,md.entryField.y)<50&&!(STATE.portalCooldowns['field_'+target] > STATE._now))enterMap(target,dir),STATE.portalCooldowns['field_'+target]=STATE._now+10000;
     }
   }else if(CONFIG.MAP_DEFS[STATE.currentMap]){
     const md=CONFIG.MAP_DEFS[STATE.currentMap];
